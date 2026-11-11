@@ -1,0 +1,17 @@
+{
+  "seed": "draftea-coinflip",
+  "startingBalance": 1000.00,
+  "tiers": [
+    { "upTo": 20, "multiplier": 1.95 },
+    { "upTo": 100, "multiplier": 1.90 },
+    { "upTo": 500, "multiplier": 1.85 },
+    { "upTo": null, "multiplier": 1.80 }
+  ],
+  "faults": {
+    "latency": { "probability": 0.15, "delayMs": 2000 },
+    "internalError": { "probability": 0.06666666666666667 },
+    "socketDrop": { "intervalMs": 180000, "jitterMs": 30000 },
+    "tierShift": { "probabilityPerMinute": 0.1, "delta": 0.05 },
+    "duplicate": { "probability": 0.05 }
+  }
+}

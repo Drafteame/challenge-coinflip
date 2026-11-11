@@ -1,0 +1,26 @@
+{
+  "name": "draftea-coinflip-game-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Deterministic coin-flip mock game server for hiring candidates",
+  "type": "module",
+  "engines": {
+    "node": ">=24 <27"
+  },
+  "packageManager": "pnpm@12.9.0",
+  "scripts": {
+    "start": "node src/main.ts",
+    "test": "node --test \"test/**/*.test.ts\"",
+    "typecheck": "tsc --noEmit",
+    "demo": "node scripts/demo.ts",
+    "seed": "node scripts/seed.ts"
+  },
+  "dependencies": {
+    "ws": "^8.22.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "@types/ws": "^8.18.2",
+    "typescript": "^5.9.3"
+  }
+}
