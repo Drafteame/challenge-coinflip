@@ -162,7 +162,6 @@ function handlePlace(s: Session, m: { reqId: string; bet: number; pick: Pick; qu
     return [error(m.reqId, 'INTERNAL', 'simulated failure')];
   }
   const d0 = s.rng.outcome();
-  const d1 = s.rng.outcome();
   const result: Pick = d0 < 0.5 ? 'heads' : 'tails';
   const win = result === m.pick;
   const multH = tierH(ctx.fixture.tiers, betCents, s.shiftH);
@@ -180,11 +179,6 @@ function handlePlace(s: Session, m: { reqId: string; bet: number; pick: Pick; qu
     state: 'open',
     createdAt: iso(ctx.now),
   };
-  if (win && d1 < 0.5) {
-    const whole = payoutCents / 100;
-    const offered = payoutCents % 100 === 0 && whole >= 1 && whole <= 5000;
-    round.streak = { offered, multiplier: tierH(ctx.fixture.tiers, payoutCents, 0) / 100 };
-  }
   s.openRound = round;
   s.openPayoutCents = payoutCents;
 

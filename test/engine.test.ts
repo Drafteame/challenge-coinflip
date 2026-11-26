@@ -4,7 +4,6 @@ import { welcome, newSession, handle, parse, tierTick } from '../src/engine.ts';
 import type { Session, Ctx } from '../src/engine.ts';
 import { makeFaults } from '../src/faults.ts';
 import type { Fixture } from '../src/config.ts';
-import { streamFor } from '../src/prng.ts';
 import type { ClientMessage, Pick } from '../src/protocol.ts';
 
 function mkFixture(overrides?: {
@@ -48,16 +47,6 @@ function msg(text: string): ClientMessage {
   const p = parse(text);
   if (!p.ok) throw new Error('unexpected parse failure: ' + p.message);
   return p.msg;
-}
-
-function findOrdinal(pred: (d0: number, d1: number) => boolean, user: string, max = 4000): number {
-  for (let ord = 0; ord < max; ord++) {
-    const r = streamFor('draftea-coinflip', user, ord, 'outcome');
-    const d0 = r();
-    const d1 = r();
-    if (pred(d0, d1)) return ord;
-  }
-  throw new Error('no ordinal found within ' + max);
 }
 
 test('parse envelope', () => {
@@ -329,42 +318,6 @@ test('tier shift: shift on tick, apply shifted tier, revert after place', () => 
   assert.equal(last.type, 'quote_changed');
   assert.deepEqual(last, { type: 'quote_changed', quoteId: 's_alice-q2', bet: 21, multiplier: 1.90 });
   assert.equal(s.shiftH, 0);
-});
-
-test('streak offered true/false', () => {
-  const fixture = mkFixture();
-
-  // (a) win with d1 < 0.5 on bet 10: payout 1950 cents, not whole dollars -> offered false, streak tier 1.95
-  const ordA = findOrdinal((d0, d1) => d0 < 0.5 && d1 < 0.5, 'streak10');
-  const sA = makeSession('streak10', ordA, fixture);
-  const ctxA = makeCtx(fixture, false);
-  handle(sA, msg('{"reqId":"q1","type":"get_quote","bet":10}'), ctxA);
-  handle(sA, msg('{"reqId":"p1","type":"place_round","bet":10,"pick":"heads","quoteId":"s_alice-q1"}'), ctxA);
-  assert.deepEqual(sA.openRound!.streak, { offered: false, multiplier: 1.95 });
-
-  // (b) win with d1 < 0.5 on bet 20: payout 3900 cents = $39 -> offered true, streak tier for $39 is 1.90
-  const ordB = findOrdinal((d0, d1) => d0 < 0.5 && d1 < 0.5, 'streak20');
-  const sB = makeSession('streak20', ordB, fixture);
-  const ctxB = makeCtx(fixture, false);
-  handle(sB, msg('{"reqId":"q1","type":"get_quote","bet":20}'), ctxB);
-  handle(sB, msg('{"reqId":"p1","type":"place_round","bet":20,"pick":"heads","quoteId":"s_alice-q1"}'), ctxB);
-  assert.deepEqual(sB.openRound!.streak, { offered: true, multiplier: 1.90 });
-
-  // (c) win with d1 >= 0.5 -> no streak field
-  const ordC = findOrdinal((d0, d1) => d0 < 0.5 && d1 >= 0.5, 'streak10');
-  const sC = makeSession('streak10', ordC, fixture);
-  const ctxC = makeCtx(fixture, false);
-  handle(sC, msg('{"reqId":"q1","type":"get_quote","bet":10}'), ctxC);
-  handle(sC, msg('{"reqId":"p1","type":"place_round","bet":10,"pick":"heads","quoteId":"s_alice-q1"}'), ctxC);
-  assert.equal(sC.openRound!.streak, undefined);
-
-  // (d) loss (d0 >= 0.5) -> no streak field
-  const ordD = findOrdinal((d0) => d0 >= 0.5, 'streak10');
-  const sD = makeSession('streak10', ordD, fixture);
-  const ctxD = makeCtx(fixture, false);
-  handle(sD, msg('{"reqId":"q1","type":"get_quote","bet":10}'), ctxD);
-  handle(sD, msg('{"reqId":"p1","type":"place_round","bet":10,"pick":"heads","quoteId":"s_alice-q1"}'), ctxD);
-  assert.equal(sD.openRound!.streak, undefined);
 });
 
 test('welcome shape', () => {
