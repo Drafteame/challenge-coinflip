@@ -2,7 +2,7 @@ export type Pick = 'heads' | 'tails';
 export type ErrorCode = 'INVALID_BET' | 'QUOTE_EXPIRED' | 'ROUND_OPEN' | 'INSUFFICIENT_BALANCE' | 'INTERNAL';
 
 export type Round = { id: string; bet: number; pick: Pick; result: Pick; multiplier: number; payout: number;
-  streak?: { offered: boolean; multiplier: number }; state: 'open' | 'acked'; createdAt: string };
+  state: 'open' | 'acked'; createdAt: string };
 
 export type ClientMessage =
   | { reqId: string; type: 'hello'; clientVersion: string }

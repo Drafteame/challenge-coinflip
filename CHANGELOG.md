@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.1] — 2026-11-26
+
+- Removed the `streak` field from rounds; the challenge no longer has a streak feature.
+- Removed references to `PROTOCOL.md`; the message contract lives in the challenge brief.
+- Removed the devenv/direnv setup files.
+
 ## [0.1.0] — 2026-11-09
 
 - Deterministic coin-flip WebSocket game server in Node 24 and TypeScript, using `ws` with no server framework.
@@ -11,4 +17,4 @@
 - Reconnect and replay semantics: session resolution at connect, `session_replaced` on takeover, 30-minute session expiry.
 - Browser test client served at `/`.
 - `node:test` suite covering handshake, quotes, rounds, reconnect, determinism and every fault kind.
-- Documentation: `PROTOCOL.md` with `DECISION:` entries for every point the prompt left open, `README.md` and this changelog.
+- Documentation: `README.md` and this changelog.

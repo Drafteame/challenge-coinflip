@@ -2,7 +2,7 @@
 
 ## What this is
 
-A deterministic coin-flip mock game server. Candidates build a casino coin-flip client against it over a weekend. The server is the single source of truth for outcomes, multipliers and balances: the client sends only `bet`, `pick` and `quoteId`, and whatever the server returns is what was applied. A seeded PRNG drives every outcome and every injected fault, so a run can be reproduced exactly. The server injects faults (latency, internal errors, socket drops, tier shifts, duplicate delivery) that the client must recover from without changing what the server decided. [`PROTOCOL.md`](PROTOCOL.md) is the wire contract. Its `DECISION:` entries record how the server resolves points the prompt left open.
+A deterministic coin-flip mock game server. Candidates build a casino coin-flip client against it over a weekend. The server is the single source of truth for outcomes, multipliers and balances: the client sends only `bet`, `pick` and `quoteId`, and whatever the server returns is what was applied. A seeded PRNG drives every outcome and every injected fault, so a run can be reproduced exactly. The server injects faults (latency, internal errors, socket drops, tier shifts, duplicate delivery) that the client must recover from without changing what the server decided. The message contract is described in the challenge brief.
 
 ## Requirements and start
 
@@ -10,7 +10,7 @@ Node 24 or newer (`engines` declares `>=24 <27`). The code runs on Node's native
 
 ```sh
 pnpm install
-pnpm start        # or: pnpm start
+pnpm start
 ```
 
 The server listens on port 8080 by default. Set `PORT` to override it. The browser test client is served at `http://localhost:8080/`.
@@ -32,7 +32,7 @@ To give a candidate a seed, run `pnpm run seed -- --candidate "<name>"` and pass
 
 ## Fixtures
 
-`fixtures/default.json` holds the PRNG seed, the starting balance, the multiplier tiers and the fault rates. The schema and validation rules are listed under the Fixtures & seeding section of [`PROTOCOL.md`](PROTOCOL.md). The validator rejects a fixture that breaks them, and the server exits without starting.
+`fixtures/default.json` holds the PRNG seed, the starting balance, the multiplier tiers and the fault rates. To try other values, copy it and load the copy with `--fixture`. The server validates the file at startup (the rules are in `src/config.ts`) and exits without starting if it is invalid.
 
 ## Faults
 
@@ -58,7 +58,7 @@ To correlate a candidate's behaviour with the server's decisions, match the `req
 
 ## Determinism
 
-With the same seed, the same fixture and the same sequence of client frames and socket events, the server produces byte-identical results and injected faults. A test checks this with an injected clock. With the real clock, outcomes and faults are still identical; only the wall-clock fields (`timestamp`, `createdAt`, `expiresAt`) and the relative timing of events differ. See DECISION D1 in `PROTOCOL.md`.
+With the same seed, the same fixture and the same sequence of client frames and socket events, the server produces byte-identical results and injected faults. A test checks this with an injected clock. With the real clock, outcomes and faults are still identical; only the wall-clock fields (`timestamp`, `createdAt`, `expiresAt`) and the relative timing of events differ.
 
 ## Project layout
 
@@ -67,5 +67,4 @@ With the same seed, the same fixture and the same sequence of client frames and 
 - `test/`: `node:test` suites.
 - `fixtures/default.json`: default fixture.
 - `scripts/`: candidate seed generator (`seed.ts`) and scripted demo (`demo.ts`).
-- `PROTOCOL.md`: wire contract and decisions.
 - `CHANGELOG.md`: release notes.
